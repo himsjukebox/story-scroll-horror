@@ -1,0 +1,22 @@
+/* Design tokens. The only file that may contain hex values. */
+:root {
+  --night: #0b0714;
+  --ink: #1a1030;
+  --neon-orange: #ff7a00;
+  --neon-purple: #9d4dff;
+  --neon-green: #39ff14;
+  --neon-magenta: #ff2bd6;
+  --bone: #f5f0e6;
+
+  --ink-panel: color-mix(in srgb, var(--ink) 88%, transparent);
+
+  --font-display: var(--font-creepster), "Impact", system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --focus-ring-width: 2px;
+  --focus-ring-color: var(--neon-magenta);
+  --focus-ring-offset: 2px;
+
+  --transition-scene: 800ms;
+  --transition-reduced: 200ms;
+}

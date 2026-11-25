@@ -1,0 +1,21 @@
+node_modules/
+.next/
+out/
+coverage/
+test-results/
+playwright-report/
+*.tsbuildinfo
+next-env.d.ts
+.env
+.env.local
+.env.*.local
+.vercel/
+.DS_Store
+npm-debug.log*
+
+# MediaPipe runtime and models are large. Fetched by `npm run fetch-models`
+# (also run automatically before dev and build). See ASSETS.md.
+public/wasm/*
+!public/wasm/.gitkeep
+public/models/*
+!public/models/.gitkeep
