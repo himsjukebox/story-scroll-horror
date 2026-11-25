@@ -13,6 +13,7 @@ Gate for every stage: `npm run lint`, `npm run typecheck`, `npm test`, `npm run 
   - Decide worker versus main thread and which tasks run together, then update the "Which MediaPipe tasks run together" and "Open Decisions" sections of `design.md`.
   - Pass criteria are in `design.md` (Performance Spike).
   - Log the result in `.kiro/KIRO_USAGE_NOTES.md`.
+  - Progress (2026-11-25): built the `/spike` page, main thread and worker runners, stats helpers with property tests, the fetch script and the `spike-results.md` template, and ran a headless Chromium sandbox smoke check. **Not done: the real phone and laptop runs, the worker or main thread decision, the `design.md` update.** Task stays unchecked until `spike-results.md` has real device rows.
   - _Requirements: 5.1, 5.2, 5.4, 19.1, open question 5_
 
 - [ ] 2. Scaffold the project

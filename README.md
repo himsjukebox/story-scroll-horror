@@ -10,7 +10,7 @@ Requires Node 22 and npm.
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000
+npm run dev        # http://localhost:3000 (first run downloads MediaPipe models, about 17 MB)
 ```
 
 No environment variables are needed (see `.env.example`).
