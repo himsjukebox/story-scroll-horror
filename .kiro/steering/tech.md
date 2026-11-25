@@ -8,7 +8,7 @@ inclusion: always
 - Next.js (App Router) with TypeScript in strict mode. Node 22, npm.
 - MediaPipe Tasks Vision (`@mediapipe/tasks-vision`) for person segmentation, face, hand and pose landmarks. Run it client-only through dynamic import (`ssr: false` or inside `useEffect`). Never import it in server components.
 - Rendering: canvas 2D (WebGL only if the performance spike requires it).
-- Tests: vitest and fast-check. Playwright later for end-to-end checks.
+- Tests: vitest and fast-check. Playwright from Stage 1 for end-to-end checks, including the no-media-upload network test (requirement 2.3 and 20.2).
 - Deploy: Vercel (public URL).
 
 ## Folder layout
@@ -24,7 +24,7 @@ src/
   vision/              MediaPipe wrappers and the frame loop
   styles/tokens.css    Design tokens
 public/
-  scenes/ costumes/ models/
+  scenes/ costumes/ models/ fonts/ samples/
 ASSETS.md  README.md  LICENSE  .env.example
 ```
 
@@ -35,4 +35,6 @@ ASSETS.md  README.md  LICENSE  .env.example
 - Tests: property-based tests for scroll mapping, gesture debounce and poster layout bounds.
 - Before finishing a stage run `npm run lint`, `npm run typecheck`, `npm test` and `npm run build`.
 - Do not add dependencies that upload data or load third-party scripts.
+- Self-host fonts and all other assets. No run-time requests to third-party origins.
+- Express blink limits in milliseconds (`BLINK_MIN_MS`, `BLINK_MAX_MS`), never in frames.
 - Never put `.kiro` in `.gitignore`.

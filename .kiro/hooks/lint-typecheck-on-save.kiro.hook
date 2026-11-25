@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Lint and typecheck on save",
+  "description": "Run lint and typecheck when a TypeScript source file is saved, so core logic and components stay clean at every stage.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": ["src/**/*.ts", "src/**/*.tsx"]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "npm run lint && npm run typecheck"
+  }
+}

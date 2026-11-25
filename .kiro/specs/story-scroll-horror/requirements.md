@@ -24,10 +24,12 @@ The app must work at the end of every stage.
 | Stage | Outcome | Requirements |
 | --- | --- | --- |
 | 1 | Live person with scroll-driven scenes | 1 to 6 |
-| 2 | Story chapters, costumes, colour and motion design | 7 to 10 |
+| 2 | Story chapters, costumes, colour and motion design | 7 to 10, 22 to 24 |
 | 3 | Gesture reactions | 11 to 13 |
-| 4 | Poster export | 14 to 16 |
+| 4 | Poster export | 14 to 16, 25 |
 | All | Non-functional and hackathon requirements | 17 to 21 |
+
+Requirements 22 to 25 make the spooky design do real work in the interface (Costume Contest rule: spooky design elements must enhance the app's function). They are numbered after the others to keep earlier references stable.
 
 ## Glossary
 
@@ -178,6 +180,45 @@ The app must work at the end of every stage.
 6. THE System SHALL provide text alternatives for non-decorative images and mark decorative layers as hidden from assistive technology.
 7. THE System SHALL NOT include flashing effects that flash more than 3 times per second.
 
+### Requirement 22
+
+**User Story:** As a visitor, I want the atmosphere to tell me when the camera cannot see me well, so that I know how to fix my position or lighting without reading an error message.
+
+#### Acceptance Criteria
+
+1. THE System SHALL compute a tracking quality value between 0 and 1 from segmentation mask confidence, person coverage of the frame, and average frame brightness, as a pure function in `core/`.
+2. WHEN the tracking quality falls, THEN the System SHALL thicken the fog layer and narrow the vignette in proportion to the drop, and WHEN it recovers THEN the System SHALL thin the fog and widen the vignette again.
+3. WHEN the tracking quality stays below `QUALITY_LOW` for at least 2 seconds THEN the System SHALL show a plain text hint that names the likely cause (for example "Too dark, turn on a light", "Step back so the ghosts can see you", "Move to the middle of the frame").
+4. THE System SHALL smooth the tracking quality over time so that fog and vignette change gradually and do not flash (Requirement 10.7).
+5. WHEN reduced motion is enabled THEN the System SHALL change fog and vignette in a single step of no more than 200 ms, and SHALL still show the text hint.
+6. THE text hint SHALL be exposed through an ARIA live region with polite priority, so that the guidance does not depend on seeing the fog.
+7. FOR ANY quality value outside 0 to 1, or any NaN input, THE quality function SHALL return a value inside 0 to 1 (verifiable by a property-based test).
+
+### Requirement 23
+
+**User Story:** As a visitor, I want the controls to belong to the haunted world, so that the interface is part of the story and still easy to use.
+
+#### Acceptance Criteria
+
+1. THE System SHALL present these controls as in-world objects: the permission prompt as a ghost asking to see the visitor, the "Take photo" control as a lantern, the gesture fallback buttons as glowing runes, and the chapter progress as a candle (Requirement 24).
+2. THE System SHALL give each in-world control a visible plain text label, an accessible name, a native button or equivalent role, keyboard access, and a visible focus ring (2 px, `--neon-magenta`), so that the theme never replaces the label.
+3. THE System SHALL keep every in-world control at least 44 by 44 CSS px.
+4. WHEN the visitor activates an in-world control THEN the System SHALL show feedback within 200 ms (glow or a short animation), and the feedback SHALL be limited as in Requirement 10.7.
+5. WHEN reduced motion is enabled THEN the System SHALL show the in-world controls without animation.
+6. THE ghost, lantern and rune art SHALL be original or licensed assets listed in `ASSETS.md`, and SHALL be marked `aria-hidden="true"` where decorative while the text label carries the meaning.
+
+### Requirement 24
+
+**User Story:** As a visitor, I want to see how far I am in the story, so that I know how many chapters remain.
+
+#### Acceptance Criteria
+
+1. THE System SHALL show a candle whose flame height or remaining wax length reflects the number of Chapters remaining (6 at the start, 1 at the final Chapter), derived from the Chapter index in Requirement 4.
+2. THE System SHALL expose the same information as text and as an accessible progressbar value (for example "Chapter 3 of 6").
+3. WHEN the Chapter changes THEN the System SHALL update the candle within the 800 ms transition limit of Requirement 4.7.
+4. WHEN reduced motion is enabled THEN the System SHALL not animate the flame.
+5. WHEN the visitor activates the candle THEN the System MAY jump to the start of the Chapter list; this behaviour is optional and SHALL be dropped first if the schedule is tight.
+
 ## Stage 3: Gesture reactions
 
 ### Requirement 11
@@ -188,7 +229,7 @@ The app must work at the end of every stage.
 
 1. WHEN hand landmarks show a hand raised above the visitor's shoulder line for at least 300 ms THEN the System SHALL fire a "raise hand" event.
 2. WHEN a "raise hand" event fires in a Chapter that has a lantern event THEN the System SHALL light a lantern with a glow effect and a change in the Scene lighting.
-3. WHEN face landmarks show a blink (eye aspect ratio below the blink threshold for 2 to 8 consecutive frames, then back above it) THEN the System SHALL fire a "blink" event.
+3. WHEN face landmarks show a blink (eye aspect ratio below the blink threshold for a continuous time of at least `BLINK_MIN_MS` and at most `BLINK_MAX_MS`, then back above it, with default values of 60 ms and 400 ms) THEN the System SHALL fire a "blink" event.
 4. WHEN a "blink" event fires in a Chapter that has a ghost event THEN the System SHALL play a scare animation in which a ghost flees.
 5. THE System SHALL define Gesture thresholds (raise height margin, eye aspect ratio, minimum and maximum duration) as named constants in one configuration file.
 6. THE System SHALL assign each Chapter zero or more Gesture events in the Chapter data file, and at least 2 Chapters SHALL have a Gesture event.
@@ -205,7 +246,7 @@ The app must work at the end of every stage.
 3. WHEN the Chapter changes THEN the System SHALL reset the Gesture state for the new Chapter and SHALL NOT carry over a held Gesture from the previous Chapter.
 4. WHEN a one-time story event (for example lighting the lantern) has been completed in a Chapter THEN the System SHALL NOT repeat it unless the visitor leaves and re-enters the Chapter.
 5. FOR ANY sequence of frames, the number of events fired SHALL be less than or equal to the number of distinct Gesture onsets in the sequence (verifiable by a property-based test).
-6. WHEN a blink is shorter than 2 frames or longer than 8 frames THEN the System SHALL NOT count it as a "blink" event, so that natural noise and eye closing are ignored.
+6. WHEN the time the eye aspect ratio stays below the threshold is shorter than `BLINK_MIN_MS` or longer than `BLINK_MAX_MS`, measured with frame timestamps and not frame counts so that the limit holds when the frame rate varies (Requirement 5.2), THEN the System SHALL NOT count it as a "blink" event, so that natural noise and eye closing are ignored.
 
 ### Requirement 13
 
@@ -215,7 +256,7 @@ The app must work at the end of every stage.
 
 1. THE System SHALL show a labelled button for each Gesture event available in the active Chapter (for example "Light the lantern", "Scare the ghost").
 2. WHEN the visitor activates a fallback button THEN the System SHALL fire the same event and visual effect as the matching Gesture.
-3. WHEN the System is in fallback mode, or when hand or face tracking is unavailable, THEN the System SHALL show the fallback buttons by default.
+3. THE System SHALL show the fallback buttons in every mode, whether tracking is working or not, so that no visitor needs a Gesture. WHEN the System is in fallback mode, or when hand or face tracking is unavailable or switched off, THEN the System SHALL also mark the buttons as the primary way to trigger events (larger size and a text hint such as "Tracking is off, use the runes").
 4. WHEN a Gesture event fires THEN the System SHALL show visible feedback (glow, animation and a short text hint) within 200 ms.
 5. WHEN a Chapter has a Gesture event THEN the System SHALL show a short on-screen hint telling the visitor which Gesture to try.
 6. THE System SHALL allow the visitor to turn Gesture detection off, and WHEN it is off THEN the System SHALL stop hand and face event processing.
@@ -265,6 +306,19 @@ The app must work at the end of every stage.
 6. WHEN the visitor activates "Start over" THEN the System SHALL clear captured photos and the Poster and return to the first Chapter.
 7. WHEN canvas export fails (for example for low memory) THEN the System SHALL show an error message and offer to retry at a smaller size.
 
+### Requirement 25
+
+**User Story:** As a visitor, I want my poster to record what happened in my story, so that it is unique to my play-through.
+
+#### Acceptance Criteria
+
+1. THE System SHALL count, in memory for the session only, the Costume overlays worn (distinct Chapters visited), the ghosts scared and the lanterns lit, whether triggered by a Gesture or by a fallback button.
+2. WHEN the Poster is generated THEN the System SHALL include a credits line built from these counts (for example "3 ghosts scared, 2 lanterns lit, 6 costumes worn").
+3. WHEN a count is 0 THEN the System SHALL leave that item out of the credits line, and WHEN all counts are 0 THEN the System SHALL show a neutral line such as "A quiet night".
+4. THE System SHALL fit the credits line inside the safe margins of Requirement 15.5, including for large counts.
+5. WHEN the visitor activates "Start over" THEN the System SHALL reset the counts.
+6. THE counts SHALL NOT be stored in cookies, local storage or sent to any server.
+
 ## Non-functional and hackathon requirements
 
 ### Requirement 17
@@ -313,11 +367,12 @@ The app must work at the end of every stage.
 #### Acceptance Criteria
 
 1. THE project SHALL provide unit tests with vitest and property-based tests with fast-check, runnable with `npm test`.
-2. THE project SHALL include property-based tests for scroll-to-Chapter mapping (exactly one Chapter per progress value, monotonic, clamped, boundaries from Requirement 4).
-3. THE project SHALL include property-based tests for Gesture debounce (at most one event per onset, cooldown respected, blink duration limits from Requirement 12).
-4. THE project SHALL include property-based tests for Poster layout bounds (all text inside safe margins for arbitrary names and titles from Requirement 15).
-5. THE project SHALL keep the core logic (scroll mapping, Gesture state machine, Poster layout) as pure functions in modules that do not import browser APIs, so that the logic can be tested in Node.
-6. THE project SHALL pass `npm run lint`, `npm run typecheck` and `npm run build` with no errors before each stage is declared complete.
+2. THE project SHALL provide end-to-end tests with Playwright, runnable with `npm run test:e2e`, that include a network test for Requirement 2.3 (record all requests during a session with a fake camera and assert that no request body contains media data and that only static model, WASM, font and image files are fetched). Playwright is added in Stage 1, with Chromium's fake media stream flags for camera input.
+3. THE project SHALL include property-based tests for scroll-to-Chapter mapping (exactly one Chapter per progress value, monotonic, clamped, boundaries from Requirement 4).
+4. THE project SHALL include property-based tests for Gesture debounce (at most one event per onset, cooldown respected, blink duration limits in milliseconds from Requirement 12, including sequences with irregular frame timestamps).
+5. THE project SHALL include property-based tests for Poster layout bounds (all text inside safe margins for arbitrary names and titles from Requirement 15).
+6. THE project SHALL keep the core logic (scroll mapping, Gesture state machine, Poster layout) as pure functions in modules that do not import browser APIs, so that the logic can be tested in Node.
+7. THE project SHALL pass `npm run lint`, `npm run typecheck` and `npm run build` with no errors before each stage is declared complete.
 
 ### Requirement 21
 
@@ -328,7 +383,7 @@ The app must work at the end of every stage.
 1. THE System SHALL provide a privacy notice that is reachable from every page and states that camera video is processed only on the device and is not stored or sent.
 2. THE System SHALL NOT use cookies or local storage to store camera frames or photos.
 3. WHEN the System uses analytics THEN the System SHALL use only analytics that collect no camera or photo data and SHALL list them in the privacy notice (analytics are optional and off by default).
-4. THE System SHALL NOT load third-party scripts that receive visitor media or identifiers, other than static asset hosting.
+4. THE System SHALL NOT load third-party scripts that receive visitor media or identifiers, other than static asset hosting. Fonts SHALL be self-hosted (for example through `next/font/local` or files in `public/fonts/`), and the System SHALL NOT request fonts or other assets from Google Fonts or any other third-party origin at run time.
 
 ## Out of scope
 
