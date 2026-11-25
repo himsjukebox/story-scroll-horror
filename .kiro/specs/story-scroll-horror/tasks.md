@@ -13,21 +13,22 @@ Gate for every stage: `npm run lint`, `npm run typecheck`, `npm test`, `npm run 
   - Decide worker versus main thread and which tasks run together, then update the "Which MediaPipe tasks run together" and "Open Decisions" sections of `design.md`.
   - Pass criteria are in `design.md` (Performance Spike).
   - Log the result in `.kiro/KIRO_USAGE_NOTES.md`.
+  - Progress (2026-11-25): built the `/spike` page, main thread and worker runners, stats helpers with property tests, the fetch script and the `spike-results.md` template, and ran a headless Chromium sandbox smoke check. **Not done: the real phone and laptop runs, the worker or main thread decision, the `design.md` update.** Task stays unchecked until `spike-results.md` has real device rows.
   - _Requirements: 5.1, 5.2, 5.4, 19.1, open question 5_
 
 - [ ] 2. Scaffold the project
-  - [ ] 2.1 Create Next.js (App Router, TypeScript strict, Node 22, npm) in the repo root without touching `.kiro/` or `LICENSE`.
+  - [x] 2.1 Create Next.js (App Router, TypeScript strict, Node 22, npm) in the repo root without touching `.kiro/` or `LICENSE`.
     - Add scripts `lint`, `typecheck` (`tsc --noEmit`), `test` (vitest run), `test:e2e` (playwright test), `build`.
     - Add vitest, fast-check and Playwright as dev dependencies. No runtime dependency that uploads data or loads third-party scripts.
     - _Requirements: 18.2, 20.1, 20.2, 20.7_
-  - [ ] 2.2 Create the folder layout from `.kiro/steering/tech.md`: `src/core`, `src/content`, `src/vision`, `src/components`, `src/styles/tokens.css`, `public/{scenes,costumes,models,fonts,samples}`.
+  - [x] 2.2 Create the folder layout from `.kiro/steering/tech.md`: `src/core`, `src/content`, `src/vision`, `src/components`, `src/styles/tokens.css`, `public/{scenes,costumes,models,fonts,samples}`.
     - Declare all palette tokens and the focus ring in `tokens.css`. No hex values in components.
     - _Requirements: 9.1, 10.3_
-  - [ ] 2.3 Add `README.md` (description, run, test and build commands, privacy statement, licence, stage status), `ASSETS.md` (table template from `design.md`), `.env.example` (empty, with a comment), and confirm `.gitignore` does not list `.kiro`.
+  - [x] 2.3 Add `README.md` (description, run, test and build commands, privacy statement, licence, stage status), `ASSETS.md` (table template from `design.md`), `.env.example` (empty, with a comment), and confirm `.gitignore` does not list `.kiro`.
     - _Requirements: 17.1, 17.2, 17.3, 18.1, 18.4, 18.5_
-  - [ ] 2.4 Self-host fonts: download Creepster or Nosifer and Inter as WOFF2, copy the OFL licence text, load through `next/font/local`, add rows to `ASSETS.md`.
+  - [x] 2.4 Self-host fonts: download Creepster or Nosifer and Inter as WOFF2, copy the OFL licence text, load through `next/font/local`, add rows to `ASSETS.md`.
     - _Requirements: 21.4, 17.3_
-  - [ ] 2.5 Add security headers and CSP in `next.config.ts` as described in `design.md` (Deployment).
+  - [x] 2.5 Add security headers and CSP in `next.config.ts` as described in `design.md` (Deployment).
     - _Requirements: 2.2, 21.4_
   - [ ] 2.6 First Vercel deployment of the empty app, record the public URL in `README.md`.
     - _Requirements: 17.5_
